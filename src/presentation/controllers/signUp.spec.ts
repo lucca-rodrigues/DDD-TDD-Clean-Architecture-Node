@@ -4,7 +4,7 @@ import {
   InternalServerError,
   MissingParamError,
 } from "../Errors";
-import { EmailValidator } from "../Protocols/emailValidator";
+import { EmailValidator } from "../Protocols";
 
 interface SutTypes {
   sut: SignUpController;
