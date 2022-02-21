@@ -2,6 +2,7 @@ import { SignUpController } from "./signUp";
 import { InvalidParamError } from "../Errors/invalidParamError";
 import { MissingParamError } from "../Errors/missingParamError";
 import { EmailValidator } from "../Protocols/emailValidator";
+import { InternalServerError } from "../Errors/internalServerError";
 
 interface SutTypes {
   sut: SignUpController;
@@ -23,7 +24,7 @@ describe("SignUpController", () => {
     const { sut } = makeSut();
     const httpRequest = {
       body: {
-        email: "any_name@email.com",
+        email: "any_email@email.com",
         password: "any_password",
         passwordConfirmation: "any_password",
       },
@@ -52,7 +53,7 @@ describe("SignUpController", () => {
     const httpRequest = {
       body: {
         name: "any_name",
-        email: "any_name@email.com",
+        email: "any_email@email.com",
         passwordConfirmation: "any_password",
       },
     };
@@ -66,7 +67,7 @@ describe("SignUpController", () => {
     const httpRequest = {
       body: {
         name: "any_name",
-        email: "any_name@email.com",
+        email: "any_email@email.com",
         password: "any_password",
       },
     };
@@ -85,7 +86,7 @@ describe("SignUpController", () => {
     const httpRequest = {
       body: {
         name: "any_name",
-        email: "any_name@email.com",
+        email: "any_email@email.com",
         password: "any_password",
         passwordConfirmation: "any_password",
       },
@@ -109,5 +110,27 @@ describe("SignUpController", () => {
     };
     sut.handle(httpRequest);
     expect(isValidEmail).toHaveBeenCalledWith("valid_email@email.com");
+  });
+
+  test("Should return 500 internal server error throws", () => {
+    class EmailValidatorStub implements EmailValidator {
+      isValid(email: string): boolean {
+        throw new Error();
+      }
+    }
+    const emailValidatorStub = new EmailValidatorStub();
+    const sut = new SignUpController(emailValidatorStub);
+
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@email.com",
+        password: "any_password",
+        passwordConfirmation: "any_password",
+      },
+    };
+    const httpResponse = sut.handle(httpRequest);
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new InternalServerError());
   });
 });
