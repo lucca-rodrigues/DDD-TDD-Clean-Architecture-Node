@@ -1,12 +1,12 @@
-import { AddAccount } from "../../Domain/UseCases/Account/addAccount";
-import { InvalidParamError, MissingParamError } from "../Errors";
-import { badRequest, internalServerError } from "../Helpers/httpHelper";
+import { InvalidParamError, MissingParamError } from "../../Errors";
+import { badRequest, internalServerError } from "../../Helpers/httpHelper";
 import {
+  AddAccount,
   Controller,
   EmailValidator,
   httpRequest,
   httpResponse,
-} from "../Protocols";
+} from "./signUpProtocols";
 
 export class SignUpController implements Controller {
   private readonly emailValidator: EmailValidator;
@@ -38,11 +38,16 @@ export class SignUpController implements Controller {
       if (password !== passwordConfirmation) {
         return badRequest(new InvalidParamError("passwordConfirmation"));
       }
-      this.addAccount.add({
+      const account = this.addAccount.add({
         name,
         email,
         password,
       });
+
+      return {
+        statusCode: 200,
+        body: account,
+      };
     } catch (error) {
       return internalServerError();
     }
