@@ -1,3 +1,5 @@
+import { DbAddAccount } from "./dbAddAccount";
+
 describe("DbAddAccount useCase", () => {
   it("Should call Encrypter with correct password", async () => {
     class EncrypterStub {
@@ -15,7 +17,7 @@ describe("DbAddAccount useCase", () => {
       password: "valid_password",
     };
 
-    sut.add(accountData);
+    await sut.add(accountData);
     expect(encryptSpy).toHaveBeenCalledWith("valid_password");
   });
 });
